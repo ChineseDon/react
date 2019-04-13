@@ -1,32 +1,116 @@
 import React, { Component } from 'react';
-import Account from './Accout'
+import Account from './Accout';
+import AccountAddForm from './AccountAddForm';
+import AmountBox from './AmountBox'
+import * as RecordsAPI from '../api/records';
 
 class Accounts extends Component {
 
   constructor() {
     super();
     this.state = {
-      records: [
-        {"id": 1,"date": "2019-04-12", "title": "收入", "accout": 20},
-        {"id": 2, "date": "2019-04-12", "title": "收入", "accout": 20}
-      ]
+      isLoaded: false,
+      records: []
     }
+  }
+
+  componentDidMount () {
+    RecordsAPI.getAll().then((res) => {
+      this.setState({
+        records: res.data
+      })
+    })
+  }
+
+  // 添加数据
+  handleAddRecords(record) {
+    console.log(record);
+    this.setState({
+      records: [
+        ...this.state.records,
+        record
+      ]
+    });
+    
+  }
+
+  // 更新
+  handleUpdateRecord(record) {
+    console.log(record)
+    let records = this.state.records.map(item => {
+      console.log(item.id)
+      if(item.id === record.id) {
+        console.log(record)
+        return record;
+      }else {
+        return item;
+      }
+    })
+    this.setState({
+      records
+    }, function() {
+      console.log(this.state.records)
+    })
+  }
+
+  // 删除数据
+  handleDelRecord(id) {
+    let records = this.state.records.filter(item => {
+      console.log(item.id, id)
+      return item.id !== id;
+    })
+    this.setState({
+      records
+    })
+  }
+
+  // 计算收支
+  Credits () {
+    let record = this.state.records.filter(item => {
+      return item.accounts >= 0
+    })
+
+    return record.reduce((cur, pre) => {
+      return cur + parseInt(pre.accounts)
+    }, 0)
+  }
+
+  Debits() {
+    let record = this.state.records.filter(item => {
+      return item.accounts < 0
+    })
+
+    return record.reduce((cur, pre) => {
+      return cur + parseInt(pre.accounts)
+    }, 0)
+  }
+
+  Balance(){
+    return this.Credits() + this.Debits()
   }
 
   render() {
     return (
       <div>
         <h2>Border</h2>
+        <div className="row col-3">
+          <AmountBox text="Credits" type="success" results={this.Credits()}/>
+          <AmountBox text="Debits" type="danger" results={this.Debits()}/>
+          <AmountBox text="Balance" type="info" results={this.Balance()}/>
+        </div>
+        <AccountAddForm handleNewAccount={this.handleAddRecords.bind(this)} />
+        <hr />
         <table className="table table-bordered">
           <thead>
 						<tr>
 							<th>Date</th>
 							<th>Title</th>
-							<th>Accounts</th>
+              <th>Accounts</th>
+              <th>Actions</th>
 						</tr>
           </thead>
 					<tbody>
-              { this.state.records.map((item, index) => <Account item={item} index={index}/>) }
+              { this.state.records.map((item, index) => <Account handleDelete={this.handleDelRecord.bind(this)} updateRecord={this.handleUpdateRecord.bind(this)} item={item} key={index} />) }
           </tbody>
         </table>
       </div>
