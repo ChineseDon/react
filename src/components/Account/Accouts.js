@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
 import Account from './Accout';
+import APP from './../App/App'
 import AccountAddForm from './AccountAddForm';
 import AmountBox from './AmountBox'
-import * as RecordsAPI from '../api/records';
+import * as RecordsAPI from '../../api/records';
 
 class Accounts extends Component {
 
@@ -92,6 +94,12 @@ class Accounts extends Component {
   render() {
     return (
       <div>
+        <h1>
+          <Router>
+            <Link to="/app">APP</Link>
+            <Route path="/app"  component={APP} />
+          </Router>
+        </h1>
         <h2>Border</h2>
         <div className="row col-3">
           <AmountBox text="Credits" type="success" results={this.Credits()}/>

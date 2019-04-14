@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import * as RecordAPI from './../api/records'
+import * as RecordAPI from '../../api/records'
 
 class Account extends Component {
   constructor() {
